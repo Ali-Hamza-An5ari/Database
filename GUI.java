@@ -1,3 +1,5 @@
+import net.proteanit.sql.DbUtils;
+
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -7,18 +9,31 @@ import java.util.ArrayList;
 public class GUI implements ActionListener
 {
     JFrame frame;
+    JFrame TableFrame;
+    JFrame AdFrame;
     JLabel l1;
     JLabel l2;
     JTextField txt;
     JComboBox c1;
     JButton signbtn;
+    JLabel label = new JLabel();
+    JTable table = new JTable();
     String s1[] = { "Student", "Teacher", "Admin"};
+    String sqlQuery = "";
+
+    ///components for Admin form
+    JButton cBtn;
+    JButton eBtn;
+    JButton dBtn;
+    JButton rBtn;
+    JButton sBtn;
+
     GUI()
     {
         frame = new JFrame();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setBounds(100,100,400,400);
+        frame.setBounds(150,100,400,400);
         Container c = frame.getContentPane();
         c.setLayout(null);
 
@@ -58,37 +73,22 @@ public class GUI implements ActionListener
         c.add(signbtn);
         c.setBackground(Color.WHITE);
         frame.setVisible(true);
-        // thehandler handler = new thehandler();
         signbtn.addActionListener(this);
 
-
-
-                        /*catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-
-                        }*/
     }
-                        // btn1.addActionListener(this)
-                        // //
+
  public void actionPerformed(ActionEvent e)
  {
-     JLabel label = new JLabel();
+
      String CMS_id = txt.getText();
      String s = c1.getSelectedItem().toString();
-
-     //ArrayList <St_user> stList = new ArrayList<St_user>();
      String url = "jdbc:mysql://localhost:3306/hr";
      String user = "root";
-     String sqlQuery = "";
-     String[][] rows = {{"a","b","c"},{"x","y","z"}};
-     String [] columns = {"p","q","r"};
      ResultSet rs;
-     int columnsNumber;
 
                             if (s.equals("Student")) {
                                 sqlQuery = "select s.student_id CMS_id, s.std_name Student_name, s.fName Father_name, s.Semester Semester, (select department_name from students join departments using(department_id) where student_id = "+CMS_id+") Department, cr.course_id Course_ID, cr.name Your_Courses, s.adm_date Adm_date, s.ADDRESS Address from students s join course_reg cr using (student_id) where s.Student_ID = "+CMS_id;
+
                             }
                             else if (s.equals("Teacher"))
                             {
@@ -96,65 +96,32 @@ public class GUI implements ActionListener
                             }
                             else
                             {
-                                sqlQuery = "Select * from employees where employee_id = 1";
+
+                                AdminForm();
+                                String actionCommand = e.getActionCommand();
+                                sqlQuery = "select * from "+actionCommand;
+
                             }
-
-                            //JFrame f = new JFrame("Sukkur IBA University CMS");
-
-
                             try {
                                 Class.forName("com.mysql.jdbc.Driver");
                                 Connection conn = DriverManager.getConnection(url, user, "");
-                                // sqlQuery = "Select * from employees where employee_id = 1";
-                                //sqlQuery = "select e1.*, (select name from employees join courses USING(course_ID) where EMPLOYEE_ID = " + CMS_id + ") Your_course, CONCAT(e2.first_name,' ',e2.LAST_NAME) Manager_of_dept  from employees e1 join  employees e2 ON e1.manager_id = e2.EMPLOYEE_ID where e1.EMPLOYEE_ID = " + CMS_id;
                                 PreparedStatement st = conn.prepareStatement(sqlQuery);
-                                 rs = st.executeQuery(sqlQuery);
-                                ResultSetMetaData rsmd = rs.getMetaData();
-                                columnsNumber = rsmd.getColumnCount();
-                                label.setText(rs.getString(2));
+                                rs = st.executeQuery(sqlQuery);
+                                //ResultSetMetaData rsmd = rs.getMetaData();
+                                table.setModel(DbUtils.resultSetToTableModel(rs));
+                                
 
-                                rows = new String[3][columnsNumber];
-                                columns = new String[columnsNumber];
-                                label.setText(CMS_id+","+rs.getString(2));
-                                System.out.println(rs.getString(2));
-                                while (rs.next())
+                                if (rs.isBeforeFirst())
                                 {
-                                    int i = 0;
-                                    columns[i] = rsmd.getColumnName(i+1);
-                                    i++;
-                                }
-
-                           /*
-                            //JPanel panel  = new JPanel();
-                            Container ct = f.getContentPane();
-                            f.setBounds(100,100,800,800);
-                            //ct.setSize();
-                            ct.setLayout(null);
-                            ct.add(table);
-                            //f.add(panel);
-                            //panel.add(label);
-                            //panel.add(table);
-                            f.setVisible(true);
-                            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);*/
-                                //f.setSize(800,600);
-                            /*while (rs.next())
-                            {
-                                for (int i = 1; i <= columnsNumber; i++) {
-                                    if (i > 1) System.out.print("  ");
-                                    System.out.print(" " + rsmd.getColumnName(i));
-                                }
-                                System.out.println("\n========================================");
-                                for (int i = 1; i <= columnsNumber; i++) {
-                                    if (i > 1) System.out.print("    ");
-                                    String columnValue = rs.getString(i);
-                                    //System.out.print(columnValue + " ");
+                                    rs.first();
 
                                 }
-                                System.out.println("");*/
-            /*while (rs.next())
-            {
-                System.out.println(rs.getString(""));
-            }*/
+                                else
+                                {
+                                    JOptionPane.showMessageDialog(null,"Invalid CMS");
+
+                                    //System.exit(0);
+                                }
                             } catch (ClassNotFoundException classNotFoundException)
                             {
                                 classNotFoundException.printStackTrace();
@@ -162,58 +129,64 @@ public class GUI implements ActionListener
                             {
                                 sqlException.printStackTrace();
                             }
-     JFrame f = new JFrame("Clicked");
-     f.setVisible(true);
-     //f.setSize(200,200);
-     f.setBounds(100,100,600,800);
-     //JLabel label = new JLabel();
-     JTable table = new JTable(rows, columns);
-     table.setBounds(20,120,600,400);
+     newFrame();
 
-     //label.setText(CMS_id+","+s);
+ }
+ public void newFrame()
+ {
+     TableFrame = new JFrame("Clicked");
+     Container res = TableFrame.getContentPane();
+     res.setLayout(null);
 
-     JPanel panel  = new JPanel();
-     f.add(panel);
-     panel.add(label);
-     //panel.add(table);
+     table.setBounds(150,80,700,250);
+     res.add(label);
+     res.add(table);
+     TableFrame.setVisible(true);
+     TableFrame.setBounds(0,100,1000,400);
+ }
+ public void AdminForm()
+ {
+     AdFrame = new JFrame();
+     Container cAd = AdFrame.getContentPane();
+     cAd.setLayout(null);
+     AdFrame.setBounds(100,100,400,500);
+
+     AdFrame.setVisible(true);
+
+     JLabel l3 = new JLabel("Tables");
+      cBtn = new JButton("courses");
+      eBtn = new JButton("employees");
+      dBtn = new JButton("departments");
+      rBtn = new JButton("registration");
+      sBtn = new JButton("students");
+
+      l3.setBounds(50,25,150,50);
+     cBtn.setBounds(50,100,200,40);
+     eBtn.setBounds(50,160,200,40);
+     dBtn.setBounds(50,220,200,40);
+     rBtn.setBounds(50,280,200,40);
+     sBtn.setBounds(50,340,200,40);
+
+     cBtn.addActionListener(this);
+     eBtn.addActionListener(this);
+     dBtn.addActionListener(this);
+     rBtn.addActionListener(this);
+     sBtn.addActionListener(this);
+
+     cAd.add(l1);
+     cAd.add(cBtn);
+     cAd.add(eBtn);
+     cAd.add(dBtn);
+     cAd.add(rBtn);
+     cAd.add(sBtn);
+
+     AdFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+     frame.setVisible(false);
+     TableFrame.setVisible(false);
+
+
  }
 
 
 }
-
-/*
-class thehandler  implements ActionListener
-{
-    @Override
-    public void actionPerformed(ActionEvent e)
-    {
-        String CMS_id = "103";
-       // String s = c1.getSelectedItem().toString();
-
-        String url = "jdbc:mysql://localhost:3306/hr";
-        String user = "root";
-        String sqlQuery = "";
-        if (s.equals("Student")) {
-            sqlQuery = "select s.student_id CMS_id, s.std_name Student_name, s.fName Father_name, s.Semester Semester, (select department_name from students join departments using(department_id) where student_id = "+CMS_id+") Department, cr.course_id Course_ID, cr.name Your_Courses, s.adm_date Adm_date, s.ADDRESS Address from students s join course_reg cr using (student_id) where s.Student_ID = "+CMS_id;
-        }
-        else if (s.equals("Teacher"))
-        {
-            sqlQuery = "select e1.*, (select name from employees join courses USING(course_ID) where EMPLOYEE_ID = " + CMS_id + ") Your_course, CONCAT(e2.first_name,' ',e2.LAST_NAME) Manager_of_dept  from employees e1 join  employees e2 ON e1.manager_id = e2.EMPLOYEE_ID where e1.EMPLOYEE_ID = " + CMS_id;
-        }
-        else
-        {
-            sqlQuery = "Select * from employees where employee_id = 1";
-        }
-
-        JFrame f = new JFrame("Sukkur IBA University CMS");
-        f.setVisible(true);
-        f.setSize(800,600);
-
-        JLabel label = new JLabel();
-        label.setText("this is second frame:");
-        JPanel panel  = new JPanel();
-        f.add(panel);
-        panel.add(label);
-    }
-}*/
 
