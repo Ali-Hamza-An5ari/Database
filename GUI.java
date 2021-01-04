@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class GUI implements ActionListener
 {
@@ -17,7 +18,7 @@ public class GUI implements ActionListener
     JComboBox c1;
     JButton signbtn;
     JLabel label = new JLabel();
-    JTable table = new JTable();
+    JTable table ;
     String s1[] = { "Student", "Teacher", "Admin"};
     String sqlQuery = "";
 
@@ -85,8 +86,9 @@ public class GUI implements ActionListener
      String url = "jdbc:mysql://localhost:3306/hr";
      String user = "root";
      ResultSet rs;
-
-                            if (s.equals("Student")) {
+     ResultSet LoginRs;
+     if (s.equals("Student"))
+     {
                                 sqlQuery = "select s.student_id CMS_id, s.std_name Student_name, s.fName Father_name, s.Semester Semester, (select department_name from students join departments using(department_id) where student_id = "+CMS_id+") Department, cr.course_id Course_ID, cr.name Your_Courses, s.adm_date Adm_date, s.ADDRESS Address from students s join course_reg cr using (student_id) where s.Student_ID = "+CMS_id;
 
                             }
@@ -107,21 +109,10 @@ public class GUI implements ActionListener
                                 Connection conn = DriverManager.getConnection(url, user, "");
                                 PreparedStatement st = conn.prepareStatement(sqlQuery);
                                 rs = st.executeQuery(sqlQuery);
-                                //ResultSetMetaData rsmd = rs.getMetaData();
-                                table.setModel(DbUtils.resultSetToTableModel(rs));
-                                
+                                table = ResultRet(rs);
+                                //ResultSetMetaData md = rs.getMetaData();
+                                LoginRs = st.executeQuery("Select * from employees where employee_id ="+CMS_id);
 
-                                if (rs.isBeforeFirst())
-                                {
-                                    rs.first();
-
-                                }
-                                else
-                                {
-                                    JOptionPane.showMessageDialog(null,"Invalid CMS");
-
-                                    //System.exit(0);
-                                }
                             } catch (ClassNotFoundException classNotFoundException)
                             {
                                 classNotFoundException.printStackTrace();
@@ -132,18 +123,72 @@ public class GUI implements ActionListener
      newFrame();
 
  }
+ //Creates JTable of the resultset
+
+ public JTable ResultRet(ResultSet rs) throws SQLException {
+     ArrayList columnNames = new ArrayList();
+     ArrayList data = new ArrayList();
+     ResultSetMetaData md = rs.getMetaData();
+     int columns = md.getColumnCount();
+     //  Get column names
+     for (int i = 1; i <= columns; i++)
+     {
+         columnNames.add( md.getColumnName(i) );
+     }
+
+     //  Get row data
+     while (rs.next())
+     {
+         ArrayList row = new ArrayList(columns);
+
+         for (int i = 1; i <= columns; i++)
+         {
+             row.add( rs.getObject(i) );
+         }
+
+         data.add( row );
+     }
+     Vector columnNamesVector = new Vector();
+     Vector dataVector = new Vector();
+
+     for (int i = 0; i < data.size(); i++)
+     {
+         ArrayList subArray = (ArrayList)data.get(i);
+         Vector subVector = new Vector();
+         for (int j = 0; j < subArray.size(); j++)
+         {
+             subVector.add(subArray.get(j));
+         }
+         dataVector.add(subVector);
+     }
+
+     for (int i = 0; i < columnNames.size(); i++ )
+         columnNamesVector.add(columnNames.get(i));
+     JTable tableSet = new JTable(dataVector, columnNamesVector);
+     return tableSet;
+ }
+ //create a new GUI form with tables
  public void newFrame()
  {
      TableFrame = new JFrame("Clicked");
      Container res = TableFrame.getContentPane();
      res.setLayout(null);
 
-     table.setBounds(150,80,700,250);
+     //table.setBounds(150,80,700,250);
      res.add(label);
-     res.add(table);
+     table.setAutoCreateColumnsFromModel(true);
+     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+     JScrollPane scrollPane = new JScrollPane(table);
+     scrollPane.setBounds(10,80,1080,250);
+     //table.setFillsViewportHeight(true);
+     //res.add(table);
+     res.add(scrollPane);
+     //res.add(new JScrollPane(table));
      TableFrame.setVisible(true);
-     TableFrame.setBounds(0,100,1000,400);
+     TableFrame.setBounds(0,100,1150,400);
  }
+
+ //shows admin controls
  public void AdminForm()
  {
      AdFrame = new JFrame();
@@ -182,7 +227,7 @@ public class GUI implements ActionListener
 
      AdFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
      frame.setVisible(false);
-     TableFrame.setVisible(false);
+     //TableFrame.setVisible(false);
 
 
  }
