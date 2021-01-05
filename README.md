@@ -21,7 +21,7 @@ For running the system
 -import the hr.sql database
 -Run the MainDB class
 
-The College Management system is developed bY
+##The College Management system is developed bY
 -Ali Hamza Ansari
 BS Computer Science-IV 
 021-19-0005
