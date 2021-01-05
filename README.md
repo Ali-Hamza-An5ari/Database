@@ -1,13 +1,13 @@
 # Database
 College Management System
-The project is a content management system for school, college and University. By using the system all the students, teachers and employees can see their related information by loging in. 
-We have keep restricted in login as only those users who are either employee, teacher or enrolled students can access the database information. Moreover, it shows relevant and personal records as of the Institutions policy.while admins have access for looking over all the database records after a successful login.
+The project is a content management system for schools, colleges, and universities. By using the system, all the students, teachers, and employees can see their related information by logging in. 
+We have kept restricted in login as only registered users, i.e., employees, teachers, or enrolled students, can access the database information. Moreover, it shows relevant and personal records as of the Institution's policy. In contrast, admins have access to looking over all the database records after a successful login.
 
-we have developed the project using Java Database connectivity and Mysql database. the database contains records of all the employees, registrations, students, courses, and departments.
+We have developed the project using Java Database connectivity and the Mysql database. The database contains records of all the employees, registrations, students, courses, and departments.
 
 For running the system 
 -run the Mysql server.
--import mysql java connector
+-import MySQL java connector
 -import the hr.sql database
 -Run the MainDB class
 
