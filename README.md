@@ -5,6 +5,16 @@ We have kept restricted in login as only registered users, i.e., employees, teac
 
 We have developed the project using Java Database connectivity and the Mysql database. The database contains records of all the employees, registrations, students, courses, and departments.
 
+## Prerequisites: 
+1): JDK 
+2): XAMPP web server
+3): any Java IDE 
+4): mysql-connector-java (jar file)
+
+## Method/Technologies
+Langauge: Java and mySQL
+Tools: XAMPP, IntelliJ, JDK
+
 For running the system 
 -run the Mysql server.
 -import MySQL java connector
